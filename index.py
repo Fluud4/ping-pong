@@ -1,9 +1,11 @@
 from pygame import *
+
 win_width = 700
 win_height = 500
 window = display.set_mode((win_width,win_height))
 display.set_caption('Ping pong')
 background = transform.scale(image.load('1643224102_new_preview_5d31c52bc865c16c0a6a332d.png'),(win_width,win_height))
+clock = time.Clock()
 
 class GameSprite(sprite.Sprite):
     def __init__(self,player_image,player_x,player_y,player_speed,player_width,player_height):
@@ -38,14 +40,27 @@ font = font.Font(None,35)
 lose1 = font.render('PLAYER 1 LOSE',True,(180,0,0))
 lose2 = font.render('PLAYER 2 LOSE',True,(180,0,0))
 
+
 game  = True
 finish = False
-clock = time.Clock()
 FPS = 60
 speed_x = 3
 speed_y = 3
+timer = 3600
+
+points1 = 0
+points2 = 0
+
+score_text1 =font.render('Счет: '+ str(points1),1,(0,0,0))
+score_text2 =font.render('Счет: '+ str(points2),1,(0,0,0))
+
 
 while game:
+    if timer <= 0:
+        game = False
+    else:
+        timer -= 1
+
     for e in event.get():
         if e.type == QUIT:
             game = False
@@ -60,17 +75,33 @@ while game:
             speed_x *=-1
         if ball.rect.y > win_height-50 or ball.rect.y < 0:
             speed_y *= -1
-        if ball.rect.x < 0:
-            finish = True
-            window.blit(lose1,(200,200))
-            game_over = True
+        if ball.rect.x < -50:
+            points2 += 1
+            score_text2 =font.render('Счет: '+ str(points2),1,(0,0,0))
+            time.delay(300)
+            ball = GameSprite('png-clipart-tennis-balls-sphere-green-ball-sports-equipment-sphere-thumbnail-transformed.png',200,200,4,50,50)
+
+
         if ball.rect.x > win_width:
-            finish = True
-            window.blit(lose2,(200,200))
-            game_over = True
+            points1 += 1
+            score_text1 =font.render('Счет: '+ str(points1),1,(0,0,0))
+            time.delay(300)
+            ball = GameSprite('png-clipart-tennis-balls-sphere-green-ball-sports-equipment-sphere-thumbnail-transformed.png',200,200,4,50,50)
+            
+
+        window.blit(score_text1, (20, 20))
+        window.blit(score_text2, (620, 20))
+
         racket1.reset()
         racket2.reset()
         ball.reset()
+        if points1 >= 10:
+            window.blit(lose2,(200,200))
+            finish = True
+        if points2 >= 10:
+            window.blit(lose1,(200,200))
+            finish = True
+  
 
     display.update()
     clock.tick(FPS)
